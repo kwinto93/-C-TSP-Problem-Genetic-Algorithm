@@ -1,8 +1,80 @@
 ﻿<Window x:Class="Tsp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        xmlns:conv="clr-namespace:Tsp.Converters"
+        ResizeMode="NoResize"
+        WindowState="Normal"
+        WindowStyle="SingleBorderWindow"
+        WindowStartupLocation="CenterScreen"
+        Title="Problem komiwojażera (TSP Problem) :: Mateusz Kordula :: Politechnika Wrocławska" Height="768" Width="1280">
     <Grid>
-        
+        <Grid.Resources>
+            <conv:BestInfoConverter x:Key="BestInfoConverter"></conv:BestInfoConverter>
+        </Grid.Resources>
+        <GroupBox Header="Opcje&#xA;" HorizontalAlignment="Left" Margin="900,10,0,0" VerticalAlignment="Top" Height="719" Width="364">
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <Button IsEnabled="{Binding ControlsEnableBools[0], Mode=TwoWay}" Margin="2" Content="Wczytaj miasta" Click="ButtonLoadData_Click" />
+                <Button IsEnabled="{Binding ControlsEnableBools[1], Mode=OneWay}" Margin="2" Grid.Row="0" Grid.Column="1" Content="Zapisz jako obraz"/>
+                
+                <Label HorizontalAlignment="Left" Content="Prawdopodobieństwo mutacji: " Grid.Row="1" Grid.Column="0"></Label>
+                <Grid Grid.Row="1" Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Slider IsEnabled="{Binding ControlsEnableBools[2], Mode=OneWay}" Minimum="0" Maximum="1" Interval="500" TickFrequency="0.01" IsSnapToTickEnabled="True" Value="{Binding Path=MutationProbability, Mode=TwoWay}" VerticalAlignment="Center" Grid.Column="0"></Slider>
+                    <TextBlock VerticalAlignment="Center" Grid.Column="1" Text ="{Binding Path=MutationProbability, Mode=OneWay}"></TextBlock>
+                </Grid>
+                
+                <Label HorizontalAlignment="Left" Grid.Row="2" Grid.Column="0" Content="Najlepsze osobniki [% pop.]: "></Label>
+                <Grid Grid.Row="2" Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="2*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox IsEnabled="{Binding ControlsEnableBools[3], Mode=OneWay}" VerticalAlignment="Center" Text="{Binding BestObjectsDownLimit, Mode=TwoWay}"></TextBox>
+                    <TextBlock HorizontalAlignment="Center" Grid.Column="1" VerticalAlignment="Center" Text="do"></TextBlock>
+                    <TextBox IsEnabled="{Binding ControlsEnableBools[4], Mode=OneWay}" Grid.Column="2" VerticalAlignment="Center" Text="{Binding BestObjectUpLimit, Mode=TwoWay}"></TextBox>
+                </Grid>
+                
+                <Label Content="Rozmiar populacji: " Grid.Column="0" Grid.Row="3"></Label>
+                <TextBox IsEnabled="{Binding ControlsEnableBools[5], Mode=OneWay}" VerticalAlignment="Center" Text="{Binding PopulationSize, Mode=TwoWay}" Grid.Column="1" Grid.Row="3"></TextBox>
+
+                <Label Content="Max. liczba pokoleń: " Grid.Column="0" Grid.Row="4"></Label>
+                <TextBox IsEnabled="{Binding ControlsEnableBools[6], Mode=OneWay}" VerticalAlignment="Center" Text="{Binding MaxGenerationCount, Mode=TwoWay}" Grid.Column="1" Grid.Row="4"></TextBox>
+
+                <Label Content="Aktualne pokolenie: " Grid.Column="0" Grid.Row="5"></Label>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding CurrentGeneration, Mode=OneWay}" Grid.Column="1" Grid.Row="5"></TextBlock>
+
+                <Label Content="Najkrótsza trasa (nr pokolenia): " Grid.Column="0" Grid.Row="6"></Label>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding BestInfo, Mode=OneWay, Converter={StaticResource BestInfoConverter}}" Grid.Column="1" Grid.Row="6"></TextBlock>
+                
+                <Button Content="Start" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="2"></Button>
+
+                <ProgressBar Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="2" Height="25" Margin="2" Maximum="{Binding MaxGenerationCount, Mode=OneWay}"></ProgressBar>
+            </Grid>
+        </GroupBox>
+        <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" Height="719" Margin="10,10,0,0" VerticalAlignment="Top" Width="885">
+            <Grid x:Name="MapGrid" Height="100" Width="100"/>
+        </ScrollViewer>
     </Grid>
 </Window>

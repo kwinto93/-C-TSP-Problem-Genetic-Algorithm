@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Tsp.ViewModels;
 
 namespace Tsp
 {
@@ -20,9 +22,18 @@ namespace Tsp
     /// </summary>
     public partial class MainWindow : Window
     {
+        private OptionsViewModel _viewModel;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            _viewModel = new OptionsViewModel();
+            this.DataContext = _viewModel;
+        }
+
+        private void ButtonLoadData_Click(object sender, RoutedEventArgs e)
+        {
         }
     }
 }
