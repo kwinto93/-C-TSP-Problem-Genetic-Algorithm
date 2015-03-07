@@ -30,7 +30,7 @@ namespace Tsp.Controllers
             string nextNumber = "";
 
             int pos = 0;
-            while (pos < str.Length - 1 && !Char.IsDigit(str[pos])) // skipping
+            while (pos < str.Length && !Char.IsDigit(str[pos])) // skipping
                 pos++;
 
             // loading number
@@ -39,7 +39,7 @@ namespace Tsp.Controllers
                 {
                     nextNumber += str[pos];
                     pos++;
-                } while (pos < str.Length - 1 && (Char.IsDigit(str[pos]) || str[pos].Equals('.')));
+                } while (pos < str.Length && (Char.IsDigit(str[pos]) || str[pos].Equals('.')));
 
             return new Tuple<string, int>(nextNumber, pos);
         }
@@ -84,15 +84,16 @@ namespace Tsp.Controllers
 
                     cityNumber++;
                     if (OnLoadingProgressChangedEvent != null)
-                        OnLoadingProgressChangedEvent((int)(cityNumber / (double)numberOfCities * 100));
+                        OnLoadingProgressChangedEvent((int)(cityNumber * 100d / numberOfCities));
                 }
                 else if (fileLine.Equals(LoadingStartTrigger))
                 {
                     load = true;
                 }
-                else if (fileLine.Equals(DimensionProperty))
+                else if (fileLine.Contains(DimensionProperty))
                 {
-                    numberOfCities = Int32.Parse(fileLine.Substring(12, 5), CultureInfo.InvariantCulture);
+                    numberOfCities = Int32.Parse(NextNumber(fileLine).Item1);
+                    Debug.WriteLine(numberOfCities);
                 }
             }
 
@@ -105,14 +106,25 @@ namespace Tsp.Controllers
                 OnLoadingStateChangedEvent(_loadingStates[0]);
 
             int count = 0;
+            StreamReader countStreamReader = new StreamReader(_filePath);
+            int numberOfCharacters = countStreamReader.ReadToEnd().Length;
+            countStreamReader.Close();
+
             List<string> fileLines = new List<string>();
             StreamReader streamReader = new StreamReader(_filePath);
+
             while (!streamReader.EndOfStream)
             {
                 string line = streamReader.ReadLine();
                 Debug.WriteLine(line);
                 fileLines.Add(line);
+
+                count += line.Length;
+                if(OnLoadingProgressChangedEvent != null)
+                    OnLoadingProgressChangedEvent((int)(count * 100d / numberOfCharacters));
             }
+
+            streamReader.Close();
 
             return fileLines;
         }

@@ -61,7 +61,7 @@ namespace Tsp
         void loadTspFile_OnLoadingFinishedEvent(List<Models.CityModel> cities)
         {
             _geneticController.CityModels = cities;
-
+            _geneticController.MinimalizeCoords();
             _progressWindow.Dispatcher.Invoke(() => _progressWindow.Close());
         }
     }
