@@ -19,20 +19,12 @@ namespace Tsp.ViewModels
             set { _mutationProbability = value; OnPropertyChanged(); }
         }
 
-        private int _bestObjectsDownLimit = 10;
+        private double _selectionProbablityDownStepFactor = 1d;
 
-        public int BestObjectsDownLimit
+        public double SelectionProbablityDownStepFactor
         {
-            get { return _bestObjectsDownLimit; }
-            set { _bestObjectsDownLimit = value; OnPropertyChanged();}
-        }
-
-        private int _bestObjectUpLimit = 25;
-
-        public int BestObjectUpLimit
-        {
-            get { return _bestObjectUpLimit; }
-            set { _bestObjectUpLimit = value; OnPropertyChanged(); }
+            get { return _selectionProbablityDownStepFactor; }
+            set { _selectionProbablityDownStepFactor = value; OnPropertyChanged(); }
         }
 
         private int _populationSize = 1000;

@@ -25,7 +25,7 @@ namespace Tsp
     public partial class MainWindow : Window
     {
         private OptionsViewModel _viewModel;
-        private GeneticController _geneticController;
+        private GeneticAlgorithmController _geneticAlgorithmController;
         private ProgressWindow _progressWindow;
 
         public MainWindow()
@@ -35,7 +35,7 @@ namespace Tsp
             _viewModel = new OptionsViewModel();
             this.DataContext = _viewModel;
 
-            _geneticController = new GeneticController();
+            _geneticAlgorithmController = new GeneticAlgorithmController(_viewModel);
         }
 
         private void ButtonLoadData_Click(object sender, RoutedEventArgs e)
@@ -60,8 +60,8 @@ namespace Tsp
 
         void loadTspFile_OnLoadingFinishedEvent(List<Models.CityModel> cities)
         {
-            _geneticController.CityModels = cities;
-            _geneticController.MinimalizeCoords();
+            _geneticAlgorithmController.CityModels = cities;
+            _geneticAlgorithmController.MinimalizeCoords();
             _progressWindow.Dispatcher.Invoke(() => _progressWindow.Close());
         }
     }
