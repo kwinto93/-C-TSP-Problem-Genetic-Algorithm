@@ -19,6 +19,12 @@ namespace Tsp.Controllers
             _pastPopulations = new Population[_optionsViewModel.MaxGenerationCount];
         }
 
+        public GeneticAlgorithmController(List<CityModel> cityModels, OptionsViewModel optionsViewModel)
+            : this(optionsViewModel)
+        {
+            _cityModels = cityModels;
+        }
+
         private List<CityModel> _cityModels;
         private OptionsViewModel _optionsViewModel;
 
@@ -240,7 +246,7 @@ namespace Tsp.Controllers
 
             foreach (var individual in pop.Individuals)
             {
-                if(rand.Next(100) < _optionsViewModel.MutationProbability * 100d)
+                if (rand.Next(100) < _optionsViewModel.MutationProbability * 100d)
                     MutateIndividual(individual, rand);
             }
         }
@@ -249,7 +255,7 @@ namespace Tsp.Controllers
         {
             Population lastPop;
             InitPopulation(out lastPop);
-            Console.WriteLine("Generation #{0}, current fitness: {1}", _currentGenerationNum,  EvaluatePopAndSetBest(lastPop));
+            Console.WriteLine("Generation #{0}, current fitness: {1}", _currentGenerationNum, EvaluatePopAndSetBest(lastPop));
             _currentGenerationNum++;
 
             while (_optionsViewModel.MaxGenerationCount > _currentGenerationNum)
@@ -257,7 +263,7 @@ namespace Tsp.Controllers
                 Population pop = SelectPop(lastPop);
                 CrossoverPop(pop);
                 MutatePop(pop);
-                Console.WriteLine("Generation #{0}, current fitness: {1}", _currentGenerationNum,  EvaluatePopAndSetBest(pop));
+                Console.WriteLine("Generation #{0}, current fitness: {1}", _currentGenerationNum, EvaluatePopAndSetBest(pop));
                 _currentGenerationNum++;
 
                 if (OnAlgorithmStateHasChangedEvent != null)
@@ -288,12 +294,10 @@ namespace Tsp.Controllers
                     minY = cityModel.CityY;
             }
 
-            double offset = minX < minY ? minX : minY;
-
             foreach (var cityModel in _cityModels)
             {
-                cityModel.CityX -= offset;
-                cityModel.CityY -= offset;
+                cityModel.CityX -= minX;
+                cityModel.CityY -= minY;
             }
         }
 

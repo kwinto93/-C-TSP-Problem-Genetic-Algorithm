@@ -30,6 +30,7 @@ namespace Tsp
         private GeneticAlgorithmController _geneticAlgorithmController;
         private ProgressWindow _progressWindow;
         private CancellationTokenSource _algorithmCancellationToken;
+        private int _lastBest;
 
         public MainWindow()
         {
@@ -61,6 +62,11 @@ namespace Tsp
             _viewModel.ControlsEnableBools = controlsBools;
         }
 
+        private void ClearAll()
+        {
+            _geneticAlgorithmController = new GeneticAlgorithmController(_geneticAlgorithmController.CityModels, _viewModel);
+        }
+
         private void ButtonLoadData_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -85,7 +91,13 @@ namespace Tsp
         {
             _geneticAlgorithmController.CityModels = cities;
             _geneticAlgorithmController.MinimalizeCoords();
-            _progressWindow.Dispatcher.Invoke(() => _progressWindow.Close());
+
+            DrawingCitiesController drawingCities = new DrawingCitiesController(_geneticAlgorithmController.CityModels.ToArray());
+            _progressWindow.Dispatcher.Invoke(() =>
+            {
+                _progressWindow.Close();
+                drawingCities.DrawPoints(MapGrid);
+            });
         }
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
@@ -102,23 +114,33 @@ namespace Tsp
         void _geneticAlgorithmController_OnAlgorithmFinishedEvent()
         {
             EnableAllControls();
+            ClearAll();
         }
 
-        void _geneticAlgorithmController_OnAlgorithmStateHasChangedEvent(int progress, Individual ind, int bestGenNum)
+        void _geneticAlgorithmController_OnAlgorithmStateHasChangedEvent(int progress, Individual bestInd, int bestGenNum)
         {
+            DrawingCitiesController drawingRoutes = new DrawingCitiesController(bestInd.CityModels);
             this.Dispatcher.Invoke(() =>
             {
-                _viewModel.ProgressBarValue = progress;
-                _viewModel.BestInfo = new[] {ind.OverallDistance.ToString(), bestGenNum.ToString()};
+                if (!_algorithmCancellationToken.IsCancellationRequested)
+                    _viewModel.ProgressBarValue = progress;
+
+                if (bestGenNum != _lastBest)
+                {
+                    drawingRoutes.DrawRoutes(MapGrid);
+                    _viewModel.BestInfo = new[] { bestInd.OverallDistance.ToString(), bestGenNum.ToString() };
+                }
             });
         }
 
         private void ButtonStop_Click(object sender, RoutedEventArgs e)
         {
             EnableAllControls();
-            if(_algorithmCancellationToken != null)
+            if (_algorithmCancellationToken != null)
                 _algorithmCancellationToken.Cancel();
             _viewModel.ProgressBarValue = 0;
+
+            ClearAll();
         }
     }
 }

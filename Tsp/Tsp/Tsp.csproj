@@ -77,8 +77,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Comparers\IndividualComparer.cs" />
+    <Compile Include="Controllers\DrawingCitiesController.cs" />
     <Compile Include="Controllers\GeneticAlgorithmController.cs" />
-    <Compile Include="Controllers\GeneticAlgorithmTaskController.cs" />
     <Compile Include="Controllers\LoadTspFileController.cs" />
     <Compile Include="Converters\BestInfoConverter.cs" />
     <Compile Include="Models\CityModel.cs" />
@@ -132,7 +132,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

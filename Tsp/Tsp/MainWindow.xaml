@@ -73,7 +73,7 @@
             </Grid>
         </GroupBox>
         <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" Height="719" Margin="10,10,0,0" VerticalAlignment="Top" Width="885">
-            <Grid x:Name="MapGrid" Height="100" Width="100"/>
+            <Grid x:Name="MapGrid"/>
         </ScrollViewer>
     </Grid>
 </Window>
