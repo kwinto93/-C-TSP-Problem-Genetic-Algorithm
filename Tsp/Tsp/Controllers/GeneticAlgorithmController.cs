@@ -62,7 +62,7 @@ namespace Tsp.Controllers
             private set { _bestGenerationNumber = value; }
         }
 
-        private void ShuffleCities(ref CityModel[] cities, int source, int dest)
+        private void ShuffleCities(CityModel[] cities, int source, int dest)
         {
             CityModel tmp = cities[source];
             cities[source] = cities[dest];
@@ -87,7 +87,7 @@ namespace Tsp.Controllers
             for (int i = 0; i < numberOfShuffles; i++)
             {
                 var cities = ind.CityModels;
-                ShuffleCities(ref cities, rand.Next(_cityModels.Count - 1), rand.Next(_cityModels.Count - 1));
+                ShuffleCities(cities, rand.Next(_cityModels.Count - 1), rand.Next(_cityModels.Count - 1));
             }
 
             return ind;
@@ -157,7 +157,7 @@ namespace Tsp.Controllers
             while ((pos2 = rand.Next(ind.CityModels.Length - 1)) == pos1) ;
 
             var cities = ind.CityModels;
-            ShuffleCities(ref cities, pos1, pos2);
+            ShuffleCities(cities, pos1, pos2);
         }
 
         public void InitPopulation(out Population pop)
@@ -220,6 +220,7 @@ namespace Tsp.Controllers
         public void CrossoverPop(Population popWithBestIndiv)
         {
             int crossOversNum = _optionsViewModel.PopulationSize - popWithBestIndiv.Individuals.Count;
+            Debug.WriteLine(crossOversNum);
 
             Individual[] individualsToCrossing = popWithBestIndiv.Individuals.ToArray();
             Random rand = new Random(DateTime.Now.Millisecond);
@@ -246,7 +247,8 @@ namespace Tsp.Controllers
 
             foreach (var individual in pop.Individuals)
             {
-                if (rand.Next(100) < _optionsViewModel.MutationProbability * 100d)
+                int random = rand.Next(100);
+                if (random < _optionsViewModel.MutationProbability * 100d)
                     MutateIndividual(individual, rand);
             }
         }
@@ -261,10 +263,12 @@ namespace Tsp.Controllers
             while (_optionsViewModel.MaxGenerationCount > _currentGenerationNum)
             {
                 Population pop = SelectPop(lastPop);
+                //Population pop = 
                 CrossoverPop(pop);
                 MutatePop(pop);
                 Console.WriteLine("Generation #{0}, current fitness: {1}", _currentGenerationNum, EvaluatePopAndSetBest(pop));
                 _currentGenerationNum++;
+                lastPop = pop;
 
                 if (OnAlgorithmStateHasChangedEvent != null)
                     OnAlgorithmStateHasChangedEvent(_currentGenerationNum, _bestIndividual, _bestGenerationNumber);
