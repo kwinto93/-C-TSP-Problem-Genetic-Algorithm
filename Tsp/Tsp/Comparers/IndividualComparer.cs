@@ -11,7 +11,12 @@ namespace Tsp.Comparers
     {
         public int Compare(Individual x, Individual y)
         {
-            return x.OverallDistance > y.OverallDistance ? 1 : -1;
+            if (x.OverallDistance > y.OverallDistance)
+                return 1;
+            else if (x.OverallDistance == y.OverallDistance)
+                return 0;
+            else
+                return -1;
         }
     }
 }

@@ -66,9 +66,10 @@
                 <Label Content="Najkrótsza trasa (nr pokolenia): " Grid.Column="0" Grid.Row="6"></Label>
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding BestInfo, Mode=OneWay, Converter={StaticResource BestInfoConverter}}" Grid.Column="1" Grid.Row="6"></TextBlock>
 
-                <Button Content="Start" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="2"></Button>
+                <Button Content="Start" Grid.Row="7" Grid.Column="0" Margin="2" Click="ButtonStart_Click"></Button>
+                <Button Content="Stop" Grid.Row="7" Grid.Column="1" Margin="2" Click="ButtonStop_Click"></Button>
 
-                <ProgressBar Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="2" Height="25" Margin="2" Maximum="{Binding MaxGenerationCount, Mode=OneWay}"></ProgressBar>
+                <ProgressBar Value="{Binding ProgressBarValue, Mode=OneWay}" Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="2" Height="25" Margin="2" Maximum="{Binding MaxGenerationCount, Mode=OneWay}"></ProgressBar>
             </Grid>
         </GroupBox>
         <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" Height="719" Margin="10,10,0,0" VerticalAlignment="Top" Width="885">

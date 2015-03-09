@@ -8,5 +8,6 @@ namespace Tsp.Controllers
 {
     public class GeneticAlgorithmTaskController
     {
+
     }
 }

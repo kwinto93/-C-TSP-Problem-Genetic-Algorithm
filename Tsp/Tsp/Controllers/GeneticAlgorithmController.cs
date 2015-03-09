@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Tsp.Comparers;
 using Tsp.Models;
@@ -11,6 +13,12 @@ namespace Tsp.Controllers
 {
     public class GeneticAlgorithmController
     {
+        public GeneticAlgorithmController(OptionsViewModel optionsViewModel)
+        {
+            _optionsViewModel = optionsViewModel;
+            _pastPopulations = new Population[_optionsViewModel.MaxGenerationCount];
+        }
+
         private List<CityModel> _cityModels;
         private OptionsViewModel _optionsViewModel;
 
@@ -48,13 +56,7 @@ namespace Tsp.Controllers
             private set { _bestGenerationNumber = value; }
         }
 
-        public GeneticAlgorithmController(OptionsViewModel optionsViewModel)
-        {
-            _optionsViewModel = optionsViewModel;
-            _pastPopulations = new Population[_optionsViewModel.MaxGenerationCount];
-        }
-
-        private void ShuffleCities(CityModel[] cities, int source, int dest)
+        private void ShuffleCities(ref CityModel[] cities, int source, int dest)
         {
             CityModel tmp = cities[source];
             cities[source] = cities[dest];
@@ -70,6 +72,7 @@ namespace Tsp.Controllers
             foreach (var cityModel in _cityModels)
             {
                 ind.CityModels[pos] = cityModel;
+                pos++;
             }
 
             // shuffle
@@ -77,7 +80,8 @@ namespace Tsp.Controllers
             int numberOfShuffles = rand.Next(_cityModels.Count);
             for (int i = 0; i < numberOfShuffles; i++)
             {
-                ShuffleCities(ind.CityModels, rand.Next(_cityModels.Count - 1), rand.Next(_cityModels.Count - 1));
+                var cities = ind.CityModels;
+                ShuffleCities(ref cities, rand.Next(_cityModels.Count - 1), rand.Next(_cityModels.Count - 1));
             }
 
             return ind;
@@ -111,7 +115,7 @@ namespace Tsp.Controllers
             return tmp;
         }
 
-        private void PutSliceOnThePosition(ref CityModel[] cities, CityModel[] sourceCities, int sliceStartPos)
+        private void PutSliceOnThePosition(CityModel[] cities, CityModel[] sourceCities, int sliceStartPos)
         {
             for (int i = 0; i < sourceCities.Length; i++)
             {
@@ -130,12 +134,13 @@ namespace Tsp.Controllers
             cities = new CityModel[parent1.CityModels.Length];
 
             var firstCityBlock = SkipCities(parent1.CityModels, slicePos, parent1.CityModels.Length - slicePos);
-            PutSliceOnThePosition(ref cities, firstCityBlock, slicePos);
+            PutSliceOnThePosition(cities, firstCityBlock, slicePos);
 
             var secondCityBlock = SkipCities(parent2.CityModels, 0, slicePos);
             secondCityBlock = ReplaceDuplicatedCities(slicePos, secondCityBlock, firstCityBlock, parent1.CityModels);
-            PutSliceOnThePosition(ref cities, secondCityBlock, 0);
+            PutSliceOnThePosition(cities, secondCityBlock, 0);
 
+            ind.CityModels = cities;
             return ind;
         }
 
@@ -145,7 +150,8 @@ namespace Tsp.Controllers
             int pos2;
             while ((pos2 = rand.Next(ind.CityModels.Length - 1)) == pos1) ;
 
-            ShuffleCities(ind.CityModels, pos1, pos2);
+            var cities = ind.CityModels;
+            ShuffleCities(ref cities, pos1, pos2);
         }
 
         public void InitPopulation(out Population pop)
@@ -201,7 +207,6 @@ namespace Tsp.Controllers
 
             Population newPop = new Population();
             newPop.Individuals = ind;
-            _currentGenerationNum++;
 
             return newPop;
         }
@@ -225,6 +230,8 @@ namespace Tsp.Controllers
                     )
                     );
             }
+
+            Debug.WriteLine("test");
         }
 
         public void MutatePop(Population pop)
@@ -236,6 +243,32 @@ namespace Tsp.Controllers
                 if(rand.Next(100) < _optionsViewModel.MutationProbability * 100d)
                     MutateIndividual(individual, rand);
             }
+        }
+
+        public void DoAlgorithm(CancellationToken token)
+        {
+            Population lastPop;
+            InitPopulation(out lastPop);
+            Console.WriteLine("Generation #{0}, current fitness: {1}", _currentGenerationNum,  EvaluatePopAndSetBest(lastPop));
+            _currentGenerationNum++;
+
+            while (_optionsViewModel.MaxGenerationCount > _currentGenerationNum)
+            {
+                Population pop = SelectPop(lastPop);
+                CrossoverPop(pop);
+                MutatePop(pop);
+                Console.WriteLine("Generation #{0}, current fitness: {1}", _currentGenerationNum,  EvaluatePopAndSetBest(pop));
+                _currentGenerationNum++;
+
+                if (OnAlgorithmStateHasChangedEvent != null)
+                    OnAlgorithmStateHasChangedEvent(_currentGenerationNum, _bestIndividual, _bestGenerationNumber);
+
+                if (token.IsCancellationRequested)
+                    break;
+            }
+
+            if (OnAlgorithmFinishedEvent != null)
+                OnAlgorithmFinishedEvent();
         }
 
         /// <summary>
@@ -263,5 +296,13 @@ namespace Tsp.Controllers
                 cityModel.CityY -= offset;
             }
         }
+
+        public delegate void OnAlgorithmFinishedEventHandler();
+
+        public event OnAlgorithmFinishedEventHandler OnAlgorithmFinishedEvent;
+
+        public delegate void OnAlgorithmStateHasChangedEventHandler(int progress, Individual best, int bestGenNum);
+
+        public event OnAlgorithmStateHasChangedEventHandler OnAlgorithmStateHasChangedEvent;
     }
 }

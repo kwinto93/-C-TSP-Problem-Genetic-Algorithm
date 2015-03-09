@@ -11,6 +11,14 @@ namespace Tsp.ViewModels
 {
     public class OptionsViewModel : INotifyPropertyChanged
     {
+        private int _progressBarValue = 0;
+
+        public int ProgressBarValue
+        {
+            get { return _progressBarValue; }
+            set { _progressBarValue = value; OnPropertyChanged(); }
+        }
+
         private double _mutationProbability = 0.01d;
 
         public double MutationProbability
