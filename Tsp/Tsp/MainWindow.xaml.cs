@@ -31,6 +31,7 @@ namespace Tsp
         private ProgressWindow _progressWindow;
         private CancellationTokenSource _algorithmCancellationToken;
         private int _lastBest;
+        private List<Tuple<int, ulong, double, ulong>> _infoBacklog;
 
         public MainWindow()
         {
@@ -62,9 +63,12 @@ namespace Tsp
             _viewModel.ControlsEnableBools = controlsBools;
         }
 
-        private void ClearAll()
+        private void ClearAndSaveAll()
         {
             _geneticAlgorithmController = new GeneticAlgorithmController(_geneticAlgorithmController.CityModels, _viewModel);
+
+            LogCsvFileSavingController logCsvFile = new LogCsvFileSavingController(_infoBacklog);
+            logCsvFile.Save();
         }
 
         private void ButtonLoadData_Click(object sender, RoutedEventArgs e)
@@ -104,17 +108,25 @@ namespace Tsp
         {
             DisableAllControls();
 
+            _infoBacklog = new List<Tuple<int, ulong, double, ulong>>(_viewModel.MaxGenerationCount);
+
             _geneticAlgorithmController.OnAlgorithmStateHasChangedEvent += _geneticAlgorithmController_OnAlgorithmStateHasChangedEvent;
             _geneticAlgorithmController.OnAlgorithmFinishedEvent += _geneticAlgorithmController_OnAlgorithmFinishedEvent;
+            _geneticAlgorithmController.OnLogChangedEvent += _geneticAlgorithmController_OnLogChangedEvent;
 
             _algorithmCancellationToken = new CancellationTokenSource();
             Task.Factory.StartNew(() => _geneticAlgorithmController.DoAlgorithm(_algorithmCancellationToken.Token), _algorithmCancellationToken.Token);
         }
 
+        void _geneticAlgorithmController_OnLogChangedEvent(Tuple<int, ulong, double, ulong> info)
+        {
+            _infoBacklog.Add(info);
+        }
+
         void _geneticAlgorithmController_OnAlgorithmFinishedEvent()
         {
             EnableAllControls();
-            ClearAll();
+            ClearAndSaveAll();
         }
 
         void _geneticAlgorithmController_OnAlgorithmStateHasChangedEvent(int progress, Individual bestInd, int bestGenNum)
@@ -140,7 +152,7 @@ namespace Tsp
                 _algorithmCancellationToken.Cancel();
             _viewModel.ProgressBarValue = 0;
 
-            ClearAll();
+            ClearAndSaveAll();
         }
     }
 }

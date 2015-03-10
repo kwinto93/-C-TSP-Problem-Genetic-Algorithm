@@ -80,6 +80,7 @@
     <Compile Include="Controllers\DrawingCitiesController.cs" />
     <Compile Include="Controllers\GeneticAlgorithmController.cs" />
     <Compile Include="Controllers\LoadTspFileController.cs" />
+    <Compile Include="Controllers\LogCsvSavingController.cs" />
     <Compile Include="Converters\BestInfoConverter.cs" />
     <Compile Include="Models\CityModel.cs" />
     <Compile Include="Models\Individual.cs" />

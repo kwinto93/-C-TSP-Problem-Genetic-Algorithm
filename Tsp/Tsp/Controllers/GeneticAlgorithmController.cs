@@ -24,9 +24,9 @@ namespace Tsp.Controllers
         {
             _cityModels = cityModels;
         }
+        private OptionsViewModel _optionsViewModel;
 
         private List<CityModel> _cityModels;
-        private OptionsViewModel _optionsViewModel;
 
         public List<CityModel> CityModels
         {
@@ -166,17 +166,25 @@ namespace Tsp.Controllers
 
         private void MutateIndividual(Individual ind, Random rand)
         {
-            int pos1 = rand.Next(ind.CityModels.Length - 1);
-            int pos2;
-            while ((pos2 = rand.Next(ind.CityModels.Length - 1)) == pos1) ;
+            for (int i = 0; i < ind.CityModels.Length; i++)
+            {
+                if (rand.Next(100) < _optionsViewModel.MutationProbability)
+                {
+                    int pos1 = rand.Next(ind.CityModels.Length - 1);
+                    int pos2;
+                    while ((pos2 = rand.Next(ind.CityModels.Length - 1)) == pos1) ;
 
-            var cities = ind.CityModels;
-            ShuffleCities(cities, pos1, pos2);
+                    var cities = ind.CityModels;
+                    ShuffleCities(cities, pos1, pos2);
+                }
+            }
         }
 
-        private void PrintEvaluateInfo(Tuple<ulong, Individual, double, ulong> info)
+        private void PrintAndStoreEvaluateInfo(Tuple<ulong, Individual, double, ulong> info)
         {
             Console.WriteLine("Generation #{0}, current best fitness: {1}, average: {2}, worst: {3}", _currentGenerationNum, info.Item1, info.Item3, info.Item4);
+            if (OnLogChangedEvent != null)
+                OnLogChangedEvent(new Tuple<int, ulong, double, ulong>(_currentGenerationNum, info.Item1, info.Item3, info.Item4));
         }
 
         public void InitPopulation(out Population pop)
@@ -275,19 +283,18 @@ namespace Tsp.Controllers
             InitPopulation(out lastPop);
 
             var evaluate = EvaluatePopAndSetBest(lastPop);
-            PrintEvaluateInfo(evaluate);
+            PrintAndStoreEvaluateInfo(evaluate);
 
             _currentGenerationNum++;
 
             while (_optionsViewModel.MaxGenerationCount > _currentGenerationNum)
             {
                 Population pop = SelectPop(lastPop);
-                //Population pop = 
                 CrossoverPop(pop);
                 MutatePop(pop);
 
                 evaluate = EvaluatePopAndSetBest(pop);
-                PrintEvaluateInfo(evaluate);
+                PrintAndStoreEvaluateInfo(evaluate);
 
                 _currentGenerationNum++;
                 lastPop = pop;
@@ -326,6 +333,10 @@ namespace Tsp.Controllers
                 cityModel.CityY -= minY;
             }
         }
+
+        public delegate void OnLogChangedEventHandler(Tuple<int, ulong, double, ulong> info);
+
+        public event OnLogChangedEventHandler OnLogChangedEvent;
 
         public delegate void OnAlgorithmFinishedEventHandler();
 
