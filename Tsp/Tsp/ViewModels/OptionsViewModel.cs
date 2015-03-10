@@ -27,7 +27,7 @@ namespace Tsp.ViewModels
             set { _mutationProbability = value; OnPropertyChanged(); }
         }
 
-        private double _selectionProbablityOfTournamentParticipation = 0.10d;
+        private double _selectionProbablityOfTournamentParticipation = 0.30d;
 
         public double SelectionProbablityOfTournamentParticipation
         {
