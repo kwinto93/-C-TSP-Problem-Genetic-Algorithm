@@ -24,6 +24,8 @@ namespace Tsp.Models
         public Tuple<ulong, Individual, double, ulong> GetBestFitness()
         {
             Individual ind = Individuals[0];
+            ind.CalculateOverallDistance();
+
             ulong minFitness = ind.OverallDistance;
             ulong averageFitness = 0;
             ulong maxFitness = 0;
@@ -31,6 +33,8 @@ namespace Tsp.Models
 
             foreach (var individual in Individuals)
             {
+                individual.CalculateOverallDistance();
+
                 if (individual.OverallDistance < minFitness)
                 {
                     minFitness = individual.OverallDistance;

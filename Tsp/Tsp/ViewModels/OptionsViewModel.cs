@@ -27,12 +27,12 @@ namespace Tsp.ViewModels
             set { _mutationProbability = value; OnPropertyChanged(); }
         }
 
-        private double _selectionProbablityDownStepFactor = 2d;
+        private double _selectionProbablityOfTournamentParticipation = 0.30d;
 
-        public double SelectionProbablityDownStepFactor
+        public double SelectionProbablityOfTournamentParticipation
         {
-            get { return _selectionProbablityDownStepFactor; }
-            set { _selectionProbablityDownStepFactor = value; OnPropertyChanged(); }
+            get { return _selectionProbablityOfTournamentParticipation; }
+            set { _selectionProbablityOfTournamentParticipation = value; OnPropertyChanged(); }
         }
 
         private int _populationSize = 1000;

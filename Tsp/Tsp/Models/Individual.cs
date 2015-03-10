@@ -17,9 +17,6 @@ namespace Tsp.Models
         {
             get
             {
-                if(_overallDistance == 0)
-                    CalculateOverallDistance();
-
                 return _overallDistance;
             }
             set { _overallDistance = value; }
@@ -43,6 +40,7 @@ namespace Tsp.Models
         /// </summary>
         public void CalculateOverallDistance()
         {
+            OverallDistance = 0;
             if (_cityModels != null)
             {
                 for (int i = 0; i < _cityModels.Length - 1; i++) // -1, because we bring one city ahead

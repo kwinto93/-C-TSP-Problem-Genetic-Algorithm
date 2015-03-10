@@ -83,7 +83,8 @@ namespace Tsp.Controllers
 
             // shuffle
             Random rand = new Random(DateTime.Now.Millisecond);
-            int numberOfShuffles = rand.Next(_cityModels.Count);
+            int shuffleMin = (int) (_cityModels.Count * 0.5);
+            int numberOfShuffles = rand.Next(shuffleMin, _cityModels.Count);
             for (int i = 0; i < numberOfShuffles; i++)
             {
                 var cities = ind.CityModels;
@@ -174,8 +175,8 @@ namespace Tsp.Controllers
                     int pos2;
                     while ((pos2 = rand.Next(ind.CityModels.Length - 1)) == pos1) ;
 
-                    var cities = ind.CityModels;
-                    ShuffleCities(cities, pos1, pos2);
+                    ShuffleCities(ind.CityModels, pos1, pos2);
+                    Debug.WriteLine("Test");
                 }
             }
         }
@@ -216,49 +217,43 @@ namespace Tsp.Controllers
             return best;
         }
 
-        public Population SelectPop(Population pop)
+        public Individual SelectTournamentWinner(Individual[] individuals)
         {
-            pop.Individuals.Sort(new IndividualComparer());
-
-            List<Individual> ind = new List<Individual>(pop.Individuals.Count);
-
-            double nowBestProbability = 1d;
-            double probabilityDownStep = 1d * _optionsViewModel.SelectionProbablityDownStepFactor / pop.Individuals.Count;
+            Tuple<int, ulong> best = new Tuple<int, ulong>(0, individuals[0].OverallDistance);
 
             Random rand = new Random(DateTime.Now.Millisecond);
-            foreach (var individual in pop.Individuals)
+            for (int i = 0; i < individuals.Length; i++)
             {
-                if (rand.Next(100) <= nowBestProbability * 100)
+                if (rand.Next(100) <= _optionsViewModel.SelectionProbablityOfTournamentParticipation * 100d && individuals[i].OverallDistance < best.Item2)
                 {
-                    ind.Add(individual);
+                    best = new Tuple<int, ulong>(i, individuals[i].OverallDistance);
                 }
-
-                nowBestProbability -= probabilityDownStep;
-                if (nowBestProbability < 0)
-                    break;
             }
 
-            Population newPop = new Population();
-            newPop.Individuals = ind;
-
-            return newPop;
+            return individuals[best.Item1];
         }
 
-        public void CrossoverPop(Population popWithBestIndiv)
+        public void CrossoverPop(Population pop)
         {
-            int crossOversNum = _optionsViewModel.PopulationSize - popWithBestIndiv.Individuals.Count;
+            Individual[] individualsToCrossing = pop.Individuals.ToArray();
+            pop.Individuals.Clear();
 
-            Individual[] individualsToCrossing = popWithBestIndiv.Individuals.ToArray();
             Random rand = new Random(DateTime.Now.Millisecond);
-            for (int i = 0; i < crossOversNum; i++)
+            while (pop.Individuals.Count < individualsToCrossing.Length - 1)
             {
-                int parentIndex1 = rand.Next(individualsToCrossing.Length - 1);
-                int parentIndex2;
-                while ((parentIndex2 = rand.Next(individualsToCrossing.Length - 1)) == parentIndex1) ; // different next one
+                Individual parent1 = SelectTournamentWinner(individualsToCrossing);
+                Individual parent2 = SelectTournamentWinner(individualsToCrossing);
 
-                popWithBestIndiv.Individuals.Add(CrossIndividuals(
-                    individualsToCrossing[parentIndex1],
-                    individualsToCrossing[parentIndex2],
+                pop.Individuals.Add(CrossIndividuals(
+                    parent1,
+                    parent2,
+                    rand
+                    )
+                    );
+
+                pop.Individuals.Add(CrossIndividuals(
+                    parent2,
+                    parent1,
                     rand
                     )
                     );
@@ -273,7 +268,9 @@ namespace Tsp.Controllers
             {
                 int random = rand.Next(100);
                 if (random < _optionsViewModel.MutationProbability * 100d)
+                {
                     MutateIndividual(individual, rand);
+                }
             }
         }
 
@@ -289,7 +286,8 @@ namespace Tsp.Controllers
 
             while (_optionsViewModel.MaxGenerationCount > _currentGenerationNum)
             {
-                Population pop = SelectPop(lastPop);
+                //Population pop = SelectTournamentWinner(lastPop);
+                Population pop = lastPop;
                 CrossoverPop(pop);
                 MutatePop(pop);
 
