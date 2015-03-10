@@ -83,7 +83,7 @@ namespace Tsp.Controllers
 
             // shuffle
             Random rand = new Random(DateTime.Now.Millisecond);
-            int shuffleMin = (int) (_cityModels.Count * 0.5);
+            int shuffleMin = (int)(_cityModels.Count * 0.5);
             int numberOfShuffles = rand.Next(shuffleMin, _cityModels.Count);
             for (int i = 0; i < numberOfShuffles; i++)
             {
@@ -94,72 +94,112 @@ namespace Tsp.Controllers
             return ind;
         }
 
-        private CityModel[] ReplaceDuplicatedCities(int slicePos, CityModel[] firstBlock, CityModel[] secondBlock, CityModel[] parent2Cities)
+        private Tuple<int, int> GetNeighbors(CityModel[] cities, int pos)
         {
-            Stack<CityModel> missingCities = new Stack<CityModel>();
-            for (int i = slicePos; i < parent2Cities.Length; i++)
-            {
-                bool exist = false;
-                for (int j = 0; j < firstBlock.Length; j++)
-                {
-                    if (parent2Cities[i].CityNumber == firstBlock[j].CityNumber)
-                    {
-                        exist = true;
-                        break;
-                    }
-                }
+            if (pos == 0)
+                return new Tuple<int, int>(cities[cities.Length - 1].CityNumber, cities[pos + 1].CityNumber);
+            if (pos == cities.Length - 1)
+                return new Tuple<int, int>(cities[pos - 1].CityNumber, cities[0].CityNumber);
 
-                if (!exist)
-                    missingCities.Push(parent2Cities[i]);
-            }
-
-            for (int i = 0; i < secondBlock.Length; i++)
-            {
-                for (int j = 0; j < firstBlock.Length; j++)
-                {
-                    if (secondBlock[i].CityNumber == firstBlock[j].CityNumber)
-                        secondBlock[i] = missingCities.Pop();
-                }
-            }
-
-            return secondBlock;
+            return new Tuple<int, int>(cities[pos - 1].CityNumber, cities[pos + 1].CityNumber);
         }
 
-        private CityModel[] SkipCities(CityModel[] source, int slicePos, int sliceLength)
+        private Tuple<List<int>, CityVertex>[] GenerateNeighborList(CityModel[] cities1, CityModel[] cities2)
         {
-            CityModel[] tmp = new CityModel[sliceLength];
-            for (int i = 0; i < sliceLength; i++)
+            Tuple<List<int>, CityVertex>[] neighborList = new Tuple<List<int>, CityVertex>[_cityModels.Count];
+
+            for (int i = 0; i < neighborList.Length; i++)
             {
-                tmp[i] = source[i + slicePos];
+                neighborList[i] = new Tuple<List<int>, CityVertex>(new List<int>(), new CityVertex());
             }
 
-            return tmp;
+            for (int i = 0; i < cities1.Length; i++)
+            {
+                var neighbors = GetNeighbors(cities1, i);
+                neighborList[cities1[i].CityNumber].Item1.Add(neighbors.Item1);
+                neighborList[cities1[i].CityNumber].Item1.Add(neighbors.Item2);
+            }
+
+            for (int i = 0; i < cities2.Length; i++)
+            {
+                var neighbors = GetNeighbors(cities2, i);
+                bool exist1 = false;
+                bool exist2 = false;
+                foreach (var vertex in neighborList[cities2[i].CityNumber].Item1)
+                {
+                    if (vertex == neighbors.Item1)
+                        exist1 = true;
+                    if (vertex == neighbors.Item2)
+                        exist2 = true;
+                }
+
+                if (!exist1)
+                    neighborList[cities1[i].CityNumber].Item1.Add(neighbors.Item1);
+                if (!exist2)
+                    neighborList[cities1[i].CityNumber].Item1.Add(neighbors.Item2);
+            }
+
+            return neighborList;
         }
 
-        private void PutSliceOnThePosition(CityModel[] cities, CityModel[] sourceCities, int sliceStartPos)
+        private void RemoveFromNeighborList(int vertex, Tuple<List<int>, CityVertex>[] neighborList)
         {
-            for (int i = 0; i < sourceCities.Length; i++)
+            for (int i = 0; i < neighborList.Length; i++)
             {
-                cities[i + sliceStartPos] = sourceCities[i];
+                neighborList[i].Item1.RemoveAll(x => x == vertex);
             }
+        }
+
+        private int FewestNeighbors(List<int> neighbors, Tuple<List<int>, CityVertex>[] neighborsList)
+        {
+            int minCount = neighborsList[neighbors[0]].Item1.Count;
+            int minNeighbor = neighbors[0];
+            foreach (var i in neighbors)
+            {
+                if (neighborsList[i].Item1.Count < minCount)
+                {
+                    minCount = neighborsList[i].Item1.Count;
+                    minNeighbor = i;
+                }
+            }
+
+            return minNeighbor;
         }
 
         private Individual CrossIndividuals(Individual parent1, Individual parent2, Random rand)
         {
-            int sliceMinPos = 1;
-            int slicePos = rand.Next(parent1.CityModels.Length - sliceMinPos - 1) + sliceMinPos;
-
             Individual ind = new Individual();
+            var cities = new CityModel[parent1.CityModels.Length];
+            var cities1 = parent1.CityModels;
+            var cities2 = parent2.CityModels;
 
-            var cities = ind.CityModels;
-            cities = new CityModel[parent1.CityModels.Length];
+            var neighborList = GenerateNeighborList(cities1, cities2);
 
-            var firstCityBlock = SkipCities(parent1.CityModels, slicePos, parent1.CityModels.Length - slicePos);
-            PutSliceOnThePosition(cities, firstCityBlock, slicePos);
+            var x = cities1[0];
+            for (int i = 0; i < cities.Length; i++)
+            {
+                cities[i] = x;
+                RemoveFromNeighborList(x.CityNumber, neighborList);
+                neighborList[x.CityNumber].Item2.IsInChild = true;
 
-            var secondCityBlock = SkipCities(parent2.CityModels, 0, slicePos);
-            secondCityBlock = ReplaceDuplicatedCities(slicePos, firstCityBlock, secondCityBlock, parent2.CityModels);
-            PutSliceOnThePosition(cities, secondCityBlock, 0);
+                int z = 0;
+                if (neighborList[x.CityNumber].Item1.Count < 1 && i != cities.Length - 1)
+                {
+                    int r = 0;
+                    while (neighborList[r].Item2.IsInChild)
+                    {
+                        r++;
+                    }
+
+                    z = r;
+                }
+                else if (i != cities.Length - 1)
+                {
+                    z = FewestNeighbors(neighborList[x.CityNumber].Item1, neighborList);
+                }
+
+                x = _cityModels[z];
+            }
 
             ind.CityModels = cities;
             return ind;
@@ -169,14 +209,13 @@ namespace Tsp.Controllers
         {
             for (int i = 0; i < ind.CityModels.Length; i++)
             {
-                if (rand.Next(100) < _optionsViewModel.MutationProbability*100d)
+                if (rand.Next(100) < _optionsViewModel.MutationProbability * 100d)
                 {
                     int pos1 = rand.Next(ind.CityModels.Length - 1);
                     int pos2;
                     while ((pos2 = rand.Next(ind.CityModels.Length - 1)) == pos1) ;
 
                     ShuffleCities(ind.CityModels, pos1, pos2);
-                    Debug.WriteLine("MUTATE");
                 }
             }
         }
@@ -241,8 +280,18 @@ namespace Tsp.Controllers
             Random rand = new Random(DateTime.Now.Millisecond);
             while (pop.Individuals.Count < individualsToCrossing.Length - 1)
             {
-                Individual parent1 = SelectTournamentWinner(individualsToCrossing);
-                Individual parent2 = SelectTournamentWinner(individualsToCrossing);
+                Individual parent1, parent2;
+
+                if (rand.Next(100) > _optionsViewModel.SelectionProbablityOfTournamentParticipation * 100d)
+                {
+                    parent1 = SelectTournamentWinner(individualsToCrossing);
+                    parent2 = SelectTournamentWinner(individualsToCrossing);
+                }
+                else
+                {
+                    parent1 = individualsToCrossing[rand.Next(individualsToCrossing.Length - 1)];
+                    parent2 = individualsToCrossing[rand.Next(individualsToCrossing.Length - 1)];
+                }
 
                 pop.Individuals.Add(CrossIndividuals(
                     parent1,

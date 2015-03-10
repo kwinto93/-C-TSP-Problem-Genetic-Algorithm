@@ -19,7 +19,7 @@ namespace Tsp.ViewModels
             set { _progressBarValue = value; OnPropertyChanged(); }
         }
 
-        private double _mutationProbability = 0.01d;
+        private double _mutationProbability = 0.02d;
 
         public double MutationProbability
         {
@@ -27,7 +27,7 @@ namespace Tsp.ViewModels
             set { _mutationProbability = value; OnPropertyChanged(); }
         }
 
-        private double _selectionProbablityOfTournamentParticipation = 0.30d;
+        private double _selectionProbablityOfTournamentParticipation = 0.10d;
 
         public double SelectionProbablityOfTournamentParticipation
         {

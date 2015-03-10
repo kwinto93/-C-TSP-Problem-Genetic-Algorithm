@@ -83,6 +83,7 @@
     <Compile Include="Controllers\LogCsvSavingController.cs" />
     <Compile Include="Converters\BestInfoConverter.cs" />
     <Compile Include="Models\CityModel.cs" />
+    <Compile Include="Models\CityVertex.cs" />
     <Compile Include="Models\Individual.cs" />
     <Compile Include="Models\Population.cs" />
     <Compile Include="ProgressWindow.xaml.cs">
