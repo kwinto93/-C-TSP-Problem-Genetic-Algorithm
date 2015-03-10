@@ -169,14 +169,14 @@ namespace Tsp.Controllers
         {
             for (int i = 0; i < ind.CityModels.Length; i++)
             {
-                if (rand.Next(100) < _optionsViewModel.MutationProbability)
+                if (rand.Next(100) < _optionsViewModel.MutationProbability*100d)
                 {
                     int pos1 = rand.Next(ind.CityModels.Length - 1);
                     int pos2;
                     while ((pos2 = rand.Next(ind.CityModels.Length - 1)) == pos1) ;
 
                     ShuffleCities(ind.CityModels, pos1, pos2);
-                    Debug.WriteLine("Test");
+                    Debug.WriteLine("MUTATE");
                 }
             }
         }
