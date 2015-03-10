@@ -27,7 +27,7 @@ namespace Tsp.ViewModels
             set { _mutationProbability = value; OnPropertyChanged(); }
         }
 
-        private double _selectionProbablityDownStepFactor = 1d;
+        private double _selectionProbablityDownStepFactor = 2d;
 
         public double SelectionProbablityDownStepFactor
         {

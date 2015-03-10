@@ -21,13 +21,29 @@ namespace Tsp.Models
         /// </summary>
         /// <returns>Item1 - Best fitness value
         /// Item2 - Best fitness individual</returns>
-        public Tuple<ulong, Individual> GetBestFitness()
+        public Tuple<ulong, Individual, double, ulong> GetBestFitness()
         {
-            ulong minFitness = Individuals.Min(i => i.OverallDistance);
+            Individual ind = Individuals[0];
+            ulong minFitness = ind.OverallDistance;
+            ulong averageFitness = 0;
+            ulong maxFitness = 0;
+            double count = 0;
 
-            Individual ind = Individuals.First(i => i.OverallDistance == minFitness);
+            foreach (var individual in Individuals)
+            {
+                if (individual.OverallDistance < minFitness)
+                {
+                    minFitness = individual.OverallDistance;
+                    ind = individual;
+                }
+                if (individual.OverallDistance > maxFitness)
+                    maxFitness = individual.OverallDistance;
 
-            return new Tuple<ulong, Individual>(minFitness, ind);
+                averageFitness += individual.OverallDistance;
+                count++;
+            }
+
+            return new Tuple<ulong, Individual, double, ulong>(minFitness, ind, (averageFitness / count), maxFitness);
         }
     }
 }

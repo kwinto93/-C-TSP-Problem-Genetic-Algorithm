@@ -93,21 +93,35 @@ namespace Tsp.Controllers
             return ind;
         }
 
-        private CityModel[] ReplaceDuplicatedCities(int slicePos, CityModel[] citiesSource, CityModel[] citiesDestination, CityModel[] orignalCities)
+        private CityModel[] ReplaceDuplicatedCities(int slicePos, CityModel[] firstBlock, CityModel[] secondBlock, CityModel[] parent2Cities)
         {
-            for (int i = 0; i < citiesSource.Length; i++)
+            Stack<CityModel> missingCities = new Stack<CityModel>();
+            for (int i = slicePos; i < parent2Cities.Length; i++)
             {
-                for (int j = 0; j < citiesDestination.Length; j++)
+                bool exist = false;
+                for (int j = 0; j < firstBlock.Length; j++)
                 {
-                    if (citiesSource[i] == citiesDestination[j])
+                    if (parent2Cities[i].CityNumber == firstBlock[j].CityNumber)
                     {
-                        citiesSource[i] = orignalCities[i];
+                        exist = true;
                         break;
                     }
                 }
+
+                if (!exist)
+                    missingCities.Push(parent2Cities[i]);
             }
 
-            return citiesSource;
+            for (int i = 0; i < secondBlock.Length; i++)
+            {
+                for (int j = 0; j < firstBlock.Length; j++)
+                {
+                    if (secondBlock[i].CityNumber == firstBlock[j].CityNumber)
+                        secondBlock[i] = missingCities.Pop();
+                }
+            }
+
+            return secondBlock;
         }
 
         private CityModel[] SkipCities(CityModel[] source, int slicePos, int sliceLength)
@@ -143,7 +157,7 @@ namespace Tsp.Controllers
             PutSliceOnThePosition(cities, firstCityBlock, slicePos);
 
             var secondCityBlock = SkipCities(parent2.CityModels, 0, slicePos);
-            secondCityBlock = ReplaceDuplicatedCities(slicePos, secondCityBlock, firstCityBlock, parent1.CityModels);
+            secondCityBlock = ReplaceDuplicatedCities(slicePos, firstCityBlock, secondCityBlock, parent2.CityModels);
             PutSliceOnThePosition(cities, secondCityBlock, 0);
 
             ind.CityModels = cities;
@@ -160,6 +174,11 @@ namespace Tsp.Controllers
             ShuffleCities(cities, pos1, pos2);
         }
 
+        private void PrintEvaluateInfo(Tuple<ulong, Individual, double, ulong> info)
+        {
+            Console.WriteLine("Generation #{0}, current best fitness: {1}, average: {2}, worst: {3}", _currentGenerationNum, info.Item1, info.Item3, info.Item4);
+        }
+
         public void InitPopulation(out Population pop)
         {
             pop = new Population();
@@ -171,7 +190,7 @@ namespace Tsp.Controllers
             }
         }
 
-        public ulong EvaluatePopAndSetBest(Population pop)
+        public Tuple<ulong, Individual, double, ulong> EvaluatePopAndSetBest(Population pop)
         {
             var best = pop.GetBestFitness();
 
@@ -186,7 +205,7 @@ namespace Tsp.Controllers
                 _bestIndividual = best.Item2;
             }
 
-            return best.Item1;
+            return best;
         }
 
         public Population SelectPop(Population pop)
@@ -220,7 +239,6 @@ namespace Tsp.Controllers
         public void CrossoverPop(Population popWithBestIndiv)
         {
             int crossOversNum = _optionsViewModel.PopulationSize - popWithBestIndiv.Individuals.Count;
-            Debug.WriteLine(crossOversNum);
 
             Individual[] individualsToCrossing = popWithBestIndiv.Individuals.ToArray();
             Random rand = new Random(DateTime.Now.Millisecond);
@@ -237,8 +255,6 @@ namespace Tsp.Controllers
                     )
                     );
             }
-
-            Debug.WriteLine("test");
         }
 
         public void MutatePop(Population pop)
@@ -257,7 +273,10 @@ namespace Tsp.Controllers
         {
             Population lastPop;
             InitPopulation(out lastPop);
-            Console.WriteLine("Generation #{0}, current fitness: {1}", _currentGenerationNum, EvaluatePopAndSetBest(lastPop));
+
+            var evaluate = EvaluatePopAndSetBest(lastPop);
+            PrintEvaluateInfo(evaluate);
+
             _currentGenerationNum++;
 
             while (_optionsViewModel.MaxGenerationCount > _currentGenerationNum)
@@ -266,7 +285,10 @@ namespace Tsp.Controllers
                 //Population pop = 
                 CrossoverPop(pop);
                 MutatePop(pop);
-                Console.WriteLine("Generation #{0}, current fitness: {1}", _currentGenerationNum, EvaluatePopAndSetBest(pop));
+
+                evaluate = EvaluatePopAndSetBest(pop);
+                PrintEvaluateInfo(evaluate);
+
                 _currentGenerationNum++;
                 lastPop = pop;
 
