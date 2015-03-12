@@ -19,7 +19,7 @@ namespace Tsp.ViewModels
             set { _progressBarValue = value; OnPropertyChanged(); }
         }
 
-        private double _mutationProbability = 0.02d;
+        private double _mutationProbability = 0.01d;
 
         public double MutationProbability
         {
