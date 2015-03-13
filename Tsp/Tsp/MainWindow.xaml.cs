@@ -110,26 +110,26 @@ namespace Tsp
 
             _infoBacklog = new List<Tuple<int, ulong, double, ulong>>(_viewModel.MaxGenerationCount);
 
-            _geneticAlgorithmController.OnAlgorithmStateHasChangedEvent += _geneticAlgorithmController_OnAlgorithmStateHasChangedEvent;
-            _geneticAlgorithmController.OnAlgorithmFinishedEvent += _geneticAlgorithmController_OnAlgorithmFinishedEvent;
-            _geneticAlgorithmController.OnLogChangedEvent += _geneticAlgorithmController_OnLogChangedEvent;
+            _geneticAlgorithmController.OnAlgorithmStateHasChangedEvent += OnAlgorithmStateHasChangedEvent;
+            _geneticAlgorithmController.OnAlgorithmFinishedEvent += OnAlgorithmFinishedEvent;
+            _geneticAlgorithmController.OnLogChangedEvent += OnLogChangedEvent;
 
             _algorithmCancellationToken = new CancellationTokenSource();
             Task.Factory.StartNew(() => _geneticAlgorithmController.DoAlgorithm(_algorithmCancellationToken.Token), _algorithmCancellationToken.Token);
         }
 
-        void _geneticAlgorithmController_OnLogChangedEvent(Tuple<int, ulong, double, ulong> info)
+        void OnLogChangedEvent(Tuple<int, ulong, double, ulong> info)
         {
             _infoBacklog.Add(info);
         }
 
-        void _geneticAlgorithmController_OnAlgorithmFinishedEvent()
+        void OnAlgorithmFinishedEvent()
         {
             EnableAllControls();
             ClearAndSaveAll();
         }
 
-        void _geneticAlgorithmController_OnAlgorithmStateHasChangedEvent(int progress, Individual bestInd, int bestGenNum)
+        void OnAlgorithmStateHasChangedEvent(int progress, Individual bestInd, int bestGenNum)
         {
             DrawingCitiesController drawingRoutes = new DrawingCitiesController(bestInd.CityModels);
             this.Dispatcher.Invoke(() =>
@@ -142,6 +142,8 @@ namespace Tsp
                     drawingRoutes.DrawRoutes(MapGrid);
                     _viewModel.BestInfo = new[] { bestInd.OverallDistance.ToString(), bestGenNum.ToString() };
                 }
+
+                _viewModel.CurrentGeneration = progress;
             });
         }
 
@@ -153,6 +155,20 @@ namespace Tsp
             _viewModel.ProgressBarValue = 0;
 
             ClearAndSaveAll();
+        }
+
+        private void ButtonHillStart_Click(object sender, RoutedEventArgs e)
+        {
+            DisableAllControls();
+
+            HillClimbing hill = new HillClimbing(_viewModel, _geneticAlgorithmController.CityModels);
+            hill.OnAlgorithmStateHasChangedEvent += OnAlgorithmStateHasChangedEvent;
+            hill.OnAlgorithmFinishedEvent += OnAlgorithmFinishedEvent;
+
+            _algorithmCancellationToken = new CancellationTokenSource();
+
+            Task.Factory.StartNew(() => hill.DoAlgorithm(_algorithmCancellationToken.Token),
+                _algorithmCancellationToken.Token);
         }
     }
 }

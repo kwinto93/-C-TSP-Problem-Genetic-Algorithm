@@ -19,18 +19,21 @@ namespace Tsp.Controllers
 
         public void Save()
         {
-            StreamWriter strW = new StreamWriter(DateTime.Now.ToString("yyyymmdd HHmmss") + ".csv");
-            strW.AutoFlush = true;
-
-            foreach (var logLine in _logSource)
+            if (_logSource != null)
             {
-                strW.WriteLine(logLine.Item1 + " " +
-                    logLine.Item2 + " " +
-                    logLine.Item3 + " " +
-                    logLine.Item4);
-            }
+                StreamWriter strW = new StreamWriter(DateTime.Now.ToString("yyyymmdd HHmmss") + ".csv");
+                strW.AutoFlush = true;
 
-            strW.Close();
+                foreach (var logLine in _logSource)
+                {
+                    strW.WriteLine(logLine.Item1 + " " +
+                                   logLine.Item2 + " " +
+                                   logLine.Item3 + " " +
+                                   logLine.Item4);
+                }
+
+                strW.Close();
+            }
         }
     }
 }

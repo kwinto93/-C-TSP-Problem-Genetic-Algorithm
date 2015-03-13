@@ -145,7 +145,7 @@ namespace Tsp.Controllers
 
         private void PrintAndStoreEvaluateInfo(Tuple<ulong, Individual, double, ulong> info)
         {
-            Console.WriteLine("Generation #{0}, current best fitness: {1}, average: {2}, worst: {3}", _currentGenerationNum, info.Item1, info.Item3, info.Item4);
+            //Console.WriteLine("Generation #{0}, current best fitness: {1}, average: {2}, worst: {3}", _currentGenerationNum, info.Item1, info.Item3, info.Item4);
             if (OnLogChangedEvent != null)
                 OnLogChangedEvent(new Tuple<int, ulong, double, ulong>(_currentGenerationNum, info.Item1, info.Item3, info.Item4));
         }
