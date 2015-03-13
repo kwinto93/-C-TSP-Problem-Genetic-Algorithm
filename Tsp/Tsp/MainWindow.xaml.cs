@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 using Tsp.Controllers;
+using Tsp.Models;
 using Tsp.ViewModels;
 
 namespace Tsp
@@ -25,8 +27,11 @@ namespace Tsp
     public partial class MainWindow : Window
     {
         private OptionsViewModel _viewModel;
-        private GeneticController _geneticController;
+        private GeneticAlgorithmController _geneticAlgorithmController;
         private ProgressWindow _progressWindow;
+        private CancellationTokenSource _algorithmCancellationToken;
+        private int _lastBest;
+        private List<Tuple<int, ulong, double, ulong>> _infoBacklog;
 
         public MainWindow()
         {
@@ -35,7 +40,35 @@ namespace Tsp
             _viewModel = new OptionsViewModel();
             this.DataContext = _viewModel;
 
-            _geneticController = new GeneticController();
+            _geneticAlgorithmController = new GeneticAlgorithmController(_viewModel);
+        }
+
+        private void DisableAllControls()
+        {
+            bool[] controlsBools = new bool[_viewModel.ControlsEnableBools.Length];
+            for (int i = 0; i < _viewModel.ControlsEnableBools.Length; i++)
+            {
+                controlsBools[i] = false;
+            }
+            _viewModel.ControlsEnableBools = controlsBools;
+        }
+
+        private void EnableAllControls()
+        {
+            bool[] controlsBools = new bool[_viewModel.ControlsEnableBools.Length];
+            for (int i = 0; i < _viewModel.ControlsEnableBools.Length; i++)
+            {
+                controlsBools[i] = true;
+            }
+            _viewModel.ControlsEnableBools = controlsBools;
+        }
+
+        private void ClearAndSaveAll()
+        {
+            _geneticAlgorithmController = new GeneticAlgorithmController(_geneticAlgorithmController.CityModels, _viewModel);
+
+            LogCsvFileSavingController logCsvFile = new LogCsvFileSavingController(_infoBacklog);
+            logCsvFile.Save();
         }
 
         private void ButtonLoadData_Click(object sender, RoutedEventArgs e)
@@ -60,9 +93,66 @@ namespace Tsp
 
         void loadTspFile_OnLoadingFinishedEvent(List<Models.CityModel> cities)
         {
-            _geneticController.CityModels = cities;
+            _geneticAlgorithmController.CityModels = cities;
+            _geneticAlgorithmController.MinimalizeCoords();
 
-            _progressWindow.Dispatcher.Invoke(() => _progressWindow.Close());
+            DrawingCitiesController drawingCities = new DrawingCitiesController(_geneticAlgorithmController.CityModels.ToArray());
+            _progressWindow.Dispatcher.Invoke(() =>
+            {
+                _progressWindow.Close();
+                drawingCities.DrawPoints(MapGrid);
+            });
+        }
+
+        private void ButtonStart_Click(object sender, RoutedEventArgs e)
+        {
+            DisableAllControls();
+
+            _infoBacklog = new List<Tuple<int, ulong, double, ulong>>(_viewModel.MaxGenerationCount);
+
+            _geneticAlgorithmController.OnAlgorithmStateHasChangedEvent += _geneticAlgorithmController_OnAlgorithmStateHasChangedEvent;
+            _geneticAlgorithmController.OnAlgorithmFinishedEvent += _geneticAlgorithmController_OnAlgorithmFinishedEvent;
+            _geneticAlgorithmController.OnLogChangedEvent += _geneticAlgorithmController_OnLogChangedEvent;
+
+            _algorithmCancellationToken = new CancellationTokenSource();
+            Task.Factory.StartNew(() => _geneticAlgorithmController.DoAlgorithm(_algorithmCancellationToken.Token), _algorithmCancellationToken.Token);
+        }
+
+        void _geneticAlgorithmController_OnLogChangedEvent(Tuple<int, ulong, double, ulong> info)
+        {
+            _infoBacklog.Add(info);
+        }
+
+        void _geneticAlgorithmController_OnAlgorithmFinishedEvent()
+        {
+            EnableAllControls();
+            ClearAndSaveAll();
+        }
+
+        void _geneticAlgorithmController_OnAlgorithmStateHasChangedEvent(int progress, Individual bestInd, int bestGenNum)
+        {
+            DrawingCitiesController drawingRoutes = new DrawingCitiesController(bestInd.CityModels);
+            this.Dispatcher.Invoke(() =>
+            {
+                if (!_algorithmCancellationToken.IsCancellationRequested)
+                    _viewModel.ProgressBarValue = progress;
+
+                if (bestGenNum != _lastBest)
+                {
+                    drawingRoutes.DrawRoutes(MapGrid);
+                    _viewModel.BestInfo = new[] { bestInd.OverallDistance.ToString(), bestGenNum.ToString() };
+                }
+            });
+        }
+
+        private void ButtonStop_Click(object sender, RoutedEventArgs e)
+        {
+            EnableAllControls();
+            if (_algorithmCancellationToken != null)
+                _algorithmCancellationToken.Cancel();
+            _viewModel.ProgressBarValue = 0;
+
+            ClearAndSaveAll();
         }
     }
 }

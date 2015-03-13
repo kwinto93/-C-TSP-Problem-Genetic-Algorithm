@@ -5,8 +5,8 @@
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         Topmost="True"
-        Title="ProgressWindow" Height="100" Width="300">
-    <Grid>
+        Title="Postęp..." Height="100" Width="300">
+    <Grid Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
@@ -15,7 +15,7 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <TextBlock x:Name="Status" Grid.Row="0" Text="Status"></TextBlock>
-        <ProgressBar Maximum="100" Grid.Column="0" Grid.Row="1" x:Name="LoadProgress"/>
+        <TextBlock Margin="5" x:Name="Status" Grid.Row="0" Text="Status"></TextBlock>
+        <ProgressBar Margin="5" Maximum="100" Grid.Column="0" Grid.Row="1" x:Name="LoadProgress"/>
     </Grid>
 </Window>

@@ -11,6 +11,14 @@ namespace Tsp.ViewModels
 {
     public class OptionsViewModel : INotifyPropertyChanged
     {
+        private int _progressBarValue = 0;
+
+        public int ProgressBarValue
+        {
+            get { return _progressBarValue; }
+            set { _progressBarValue = value; OnPropertyChanged(); }
+        }
+
         private double _mutationProbability = 0.01d;
 
         public double MutationProbability
@@ -19,20 +27,12 @@ namespace Tsp.ViewModels
             set { _mutationProbability = value; OnPropertyChanged(); }
         }
 
-        private int _bestObjectsDownLimit = 10;
+        private double _selectionProbablityOfTournamentParticipation = 0.30d;
 
-        public int BestObjectsDownLimit
+        public double SelectionProbablityOfTournamentParticipation
         {
-            get { return _bestObjectsDownLimit; }
-            set { _bestObjectsDownLimit = value; OnPropertyChanged();}
-        }
-
-        private int _bestObjectUpLimit = 25;
-
-        public int BestObjectUpLimit
-        {
-            get { return _bestObjectUpLimit; }
-            set { _bestObjectUpLimit = value; OnPropertyChanged(); }
+            get { return _selectionProbablityOfTournamentParticipation; }
+            set { _selectionProbablityOfTournamentParticipation = value; OnPropertyChanged(); }
         }
 
         private int _populationSize = 1000;
