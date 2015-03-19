@@ -24,11 +24,13 @@ namespace Tsp.Controllers
                 StreamWriter strW = new StreamWriter(DateTime.Now.ToString("yyyymmdd HHmmss") + ".csv");
                 strW.AutoFlush = true;
 
+                strW.WriteLine("Nr;Best;Avg;Worst");
+
                 foreach (var logLine in _logSource)
                 {
-                    strW.WriteLine(logLine.Item1 + " " +
-                                   logLine.Item2 + " " +
-                                   logLine.Item3 + " " +
+                    strW.WriteLine(logLine.Item1 + ";" +
+                                   logLine.Item2 + ";" +
+                                   logLine.Item3 + ";" +
                                    logLine.Item4);
                 }
 

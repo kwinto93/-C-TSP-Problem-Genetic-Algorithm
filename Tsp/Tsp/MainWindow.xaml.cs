@@ -156,9 +156,12 @@ namespace Tsp
         {
             DisableAllControls();
 
+            _infoBacklog = new List<Tuple<int, ulong, double, ulong>>(_viewModel.MaxGenerationCount);
+
             var hill = new HillClimbing(_viewModel, _geneticAlgorithmController.CityModels);
             hill.OnAlgorithmStateHasChangedEvent += OnAlgorithmStateHasChangedEvent;
             hill.OnAlgorithmFinishedEvent += OnAlgorithmFinishedEvent;
+            hill.OnLogChangedEvent += OnLogChangedEvent;
 
             _algorithmCancellationToken = new CancellationTokenSource();
 

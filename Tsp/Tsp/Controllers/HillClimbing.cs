@@ -69,6 +69,9 @@ namespace Tsp.Controllers
                 if (OnAlgorithmStateHasChangedEvent != null)
                     OnAlgorithmStateHasChangedEvent(_currentGenerationNum, _currentBest, _bestGenerationNumber);
 
+                if (OnLogChangedEvent != null)
+                    OnLogChangedEvent(new Tuple<int, ulong, double, ulong>(_currentGenerationNum, _currentBest.OverallDistance, 0d, 0));
+
                 if (token.IsCancellationRequested)
                     break;
 
