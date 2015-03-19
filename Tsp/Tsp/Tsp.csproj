@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{3C7FD133-7445-4ACA-B4FC-54DFFDAFB821}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Tsp</RootNamespace>
     <AssemblyName>Tsp</AssemblyName>
@@ -59,6 +59,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -79,6 +80,7 @@
     <Compile Include="Comparers\IndividualComparer.cs" />
     <Compile Include="Controllers\DrawingCitiesController.cs" />
     <Compile Include="Controllers\GeneticAlgorithmController.cs" />
+    <Compile Include="Controllers\HillClimbing.cs" />
     <Compile Include="Controllers\LoadTspFileController.cs" />
     <Compile Include="Controllers\LogCsvSavingController.cs" />
     <Compile Include="Converters\BestInfoConverter.cs" />
