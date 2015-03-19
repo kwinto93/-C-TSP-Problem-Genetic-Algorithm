@@ -72,7 +72,7 @@ namespace Tsp.Controllers
 
         public Bitmap GenerateBitmap(int width, int height)
         {
-            var bmp = new Bitmap(Convert.ToInt32(width + 1 + 0.1*width), Convert.ToInt32(height + 1 + 0.1*height), PixelFormat.Format32bppArgb);
+            var bmp = new Bitmap(Convert.ToInt32(width + 1 + 0.01*width), Convert.ToInt32(height + 1 + 0.01*height), PixelFormat.Format32bppArgb);
             var g = Graphics.FromImage(bmp);
 
             g.Clear(Color.White);
