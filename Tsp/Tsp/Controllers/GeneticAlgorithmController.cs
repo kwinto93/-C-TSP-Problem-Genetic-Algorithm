@@ -179,7 +179,7 @@ namespace Tsp.Controllers
             return best;
         }
 
-        public Tuple<Individual, int> SelectBinaryTournamentWinner(Individual[] individuals, int numberOfTournamentIndividuals)
+        public Tuple<Individual, int> SelectTournamentWinner(Individual[] individuals, int numberOfTournamentIndividuals)
         {
             Individual winner = null;
             int loserId = -1;
@@ -209,7 +209,6 @@ namespace Tsp.Controllers
             Individual[] individualsToCrossing;
 
             individualsToCrossing = pop.Individuals.ToArray();
-            //pop.Individuals.Clear();
 
             // crossover best N
             int crossCount = 0;
@@ -217,8 +216,8 @@ namespace Tsp.Controllers
             {
                 if (_randomGenerator.Next(100) < _optionsViewModel.SelectionProbablityOfTournamentParticipation*100d)
                 {
-                    var tournament1 = SelectBinaryTournamentWinner(individualsToCrossing, 2);
-                    var tournament2 = SelectBinaryTournamentWinner(individualsToCrossing, 2);
+                    var tournament1 = SelectTournamentWinner(individualsToCrossing, 2);
+                    var tournament2 = SelectTournamentWinner(individualsToCrossing, 2);
 
                     pop.Individuals[tournament1.Item2] = (CrossIndividuals(
                         tournament1.Item1,

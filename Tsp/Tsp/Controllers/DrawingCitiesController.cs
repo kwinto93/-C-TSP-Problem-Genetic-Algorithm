@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Shapes;
 using Tsp.Models;
+using Brushes = System.Windows.Media.Brushes;
 
 namespace Tsp.Controllers
 {
     public class DrawingCitiesController
     {
-        private CityModel[] _cities;
+        private readonly CityModel[] _cities;
 
         public DrawingCitiesController(CityModel[] cities)
         {
@@ -21,7 +19,7 @@ namespace Tsp.Controllers
 
         private Line CreatePoint(int x, int y)
         {
-            Line point = new Line();
+            var point = new Line();
             point.StrokeThickness = 1;
             point.Stroke = Brushes.Black;
 
@@ -35,7 +33,7 @@ namespace Tsp.Controllers
 
         private Line CreateLine(int x1, int x2, int y1, int y2)
         {
-            Line line = new Line();
+            var line = new Line();
             line.StrokeThickness = 1;
             line.Stroke = Brushes.Black;
 
@@ -50,9 +48,9 @@ namespace Tsp.Controllers
         public void DrawPoints(Grid destination)
         {
             ClearAll(destination);
-            for (int i = 0; i < _cities.Length; i++)
+            for (var i = 0; i < _cities.Length; i++)
             {
-                Line point = CreatePoint((int)_cities[i].CityX, (int)_cities[i].CityY);
+                var point = CreatePoint((int) _cities[i].CityX, (int) _cities[i].CityY);
 
                 destination.Children.Add(point);
             }
@@ -61,15 +59,35 @@ namespace Tsp.Controllers
         public void DrawRoutes(Grid destination)
         {
             ClearAll(destination);
-            for (int i = 0; i < _cities.Length-1; i++)
+            for (var i = 0; i < _cities.Length - 1; i++)
             {
                 destination.Children.Add(CreateLine((int) _cities[i].CityX, (int) _cities[i + 1].CityX,
                     (int) _cities[i].CityY, (int) _cities[i + 1].CityY));
             }
 
             // last connection
-            destination.Children.Add(CreateLine((int) _cities[0].CityX, (int) _cities[_cities.Length-1].CityX,
-                    (int) _cities[0].CityY, (int) _cities[_cities.Length-1].CityY));
+            destination.Children.Add(CreateLine((int) _cities[0].CityX, (int) _cities[_cities.Length - 1].CityX,
+                (int) _cities[0].CityY, (int) _cities[_cities.Length - 1].CityY));
+        }
+
+        public Bitmap GenerateBitmap(int width, int height)
+        {
+            var bmp = new Bitmap(Convert.ToInt32(width + 1 + 0.1*width), Convert.ToInt32(height + 1 + 0.1*height), PixelFormat.Format32bppArgb);
+            var g = Graphics.FromImage(bmp);
+
+            g.Clear(Color.White);
+
+            for (var i = 0; i < _cities.Length - 1; i++)
+            {
+                g.DrawLine(Pens.Black, (int) _cities[i].CityX, (int) _cities[i].CityY, (int) _cities[i + 1].CityX,
+                    (int) _cities[i + 1].CityY);
+            }
+
+            // last connection
+            g.DrawLine(Pens.Black, (int)_cities[0].CityX, (int)_cities[0].CityY,
+                (int)_cities[_cities.Length - 1].CityX, (int)_cities[_cities.Length - 1].CityY);
+
+            return bmp;
         }
 
         public void ClearAll(Grid destination)
