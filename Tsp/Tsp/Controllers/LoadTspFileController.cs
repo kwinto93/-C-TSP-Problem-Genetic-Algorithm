@@ -34,7 +34,7 @@ namespace Tsp.Controllers
                 pos++;
 
             // loading number
-            if (pos < str.Length - 1)
+            if (pos <= str.Length - 1)
                 do
                 {
                     nextNumber += str[pos];
@@ -75,11 +75,25 @@ namespace Tsp.Controllers
                 {
                     string[] str = SliceString(fileLine);
 
+                    double x = 0d, y = 0d;
+                    try
+                    {
+                        x = Double.Parse(str[0], CultureInfo.InvariantCulture);
+                        y = Double.Parse(str[1], CultureInfo.InvariantCulture);
+                    }
+                    catch (Exception e)
+                    {
+                        x = Int32.Parse(str[0], CultureInfo.InvariantCulture);
+                        y = Int32.Parse(str[1], CultureInfo.InvariantCulture);
+
+                        Debug.WriteLine(e.Message);
+                    }
+
                     cities.Add(new CityModel()
                     {
                         CityNumber = cityNumber,
-                        CityX = Double.Parse(str[0], CultureInfo.InvariantCulture),
-                        CityY = Double.Parse(str[1], CultureInfo.InvariantCulture)
+                        CityX = x,
+                        CityY = y
                     });
 
                     cityNumber++;
