@@ -11,7 +11,7 @@
         <Grid.Resources>
             <conv:BestInfoConverter x:Key="BestInfoConverter"></conv:BestInfoConverter>
         </Grid.Resources>
-        <GroupBox Header="Opcje&#xA;" HorizontalAlignment="Left" Margin="900,10,0,0" VerticalAlignment="Top" Height="719" Width="364">
+        <GroupBox Header="Options&#xA;" HorizontalAlignment="Left" Margin="900,10,0,0" VerticalAlignment="Top" Height="719" Width="364">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"></RowDefinition>
@@ -30,10 +30,10 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <Button IsEnabled="{Binding ControlsEnableBools[0], Mode=TwoWay}" Margin="2,2,2,0" Content="Wczytaj miasta" Click="ButtonLoadData_Click" Height="21" VerticalAlignment="Top" />
-                <Button IsEnabled="{Binding ControlsEnableBools[1], Mode=OneWay}" Margin="2,2,2,0" Grid.Row="0" Grid.Column="1" Content="Zapisz jako obraz" Height="21" VerticalAlignment="Top" Click="ButtonSaveBMP_Click"/>
+                <Button IsEnabled="{Binding ControlsEnableBools[0], Mode=TwoWay}" Margin="2,2,2,0" Content="Load TSP data" Click="ButtonLoadData_Click" Height="21" VerticalAlignment="Top" />
+                <Button IsEnabled="{Binding ControlsEnableBools[1], Mode=OneWay}" Margin="2,2,2,0" Grid.Row="0" Grid.Column="1" Content="Export to png" Height="21" VerticalAlignment="Top" Click="ButtonSaveBMP_Click"/>
 
-                <Label HorizontalAlignment="Left" Content="Prawdopodobieństwo mutacji: " Grid.Row="1" Grid.Column="0"></Label>
+                <Label HorizontalAlignment="Left" Content="Mutation probability: " Grid.Row="1" Grid.Column="0"></Label>
                 <Grid Grid.Row="1" Grid.Column="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="5*"></ColumnDefinition>
@@ -43,7 +43,7 @@
                     <TextBlock VerticalAlignment="Center" Grid.Column="1" Text ="{Binding Path=MutationProbability, Mode=OneWay}"></TextBlock>
                 </Grid>
 
-                <TextBlock Margin="5" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="0" Text="Prawdopodobieństwo krzyżowania: " TextWrapping="WrapWithOverflow"></TextBlock>
+                <TextBlock Margin="5" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="0" Text="Crossing probability: " TextWrapping="WrapWithOverflow"></TextBlock>
                 <Grid Grid.Row="2" Grid.Column="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="5*"></ColumnDefinition>
@@ -54,16 +54,16 @@
                     <TextBlock HorizontalAlignment="Left" Grid.Column="1" VerticalAlignment="Center" Text="{Binding SelectionProbablityOfTournamentParticipation, Mode=OneWay}"></TextBlock>
                 </Grid>
 
-                <Label Content="Rozmiar populacji: " Grid.Column="0" Grid.Row="3"></Label>
+                <Label Content="Population size: " Grid.Column="0" Grid.Row="3"></Label>
                 <TextBox IsEnabled="{Binding ControlsEnableBools[5], Mode=OneWay}" VerticalAlignment="Center" Text="{Binding PopulationSize, Mode=TwoWay}" Grid.Column="1" Grid.Row="3"></TextBox>
 
-                <Label Content="Max. liczba pokoleń: " Grid.Column="0" Grid.Row="4"></Label>
+                <Label Content="Max. generations count: " Grid.Column="0" Grid.Row="4"></Label>
                 <TextBox IsEnabled="{Binding ControlsEnableBools[6], Mode=OneWay}" VerticalAlignment="Center" Text="{Binding MaxGenerationCount, Mode=TwoWay}" Grid.Column="1" Grid.Row="4"></TextBox>
 
-                <Label Content="Aktualne pokolenie: " Grid.Column="0" Grid.Row="5"></Label>
+                <Label Content="Current generation number: " Grid.Column="0" Grid.Row="5"></Label>
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding CurrentGeneration, Mode=OneWay}" Grid.Column="1" Grid.Row="5"></TextBlock>
 
-                <Label Content="Najkrótsza trasa (nr pokolenia): " Grid.Column="0" Grid.Row="6"></Label>
+                <TextBlock Text="The shortest route (number of generation): " Grid.Column="0" Grid.Row="6" TextWrapping="Wrap" Margin="5,0,0,0"></TextBlock>
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding BestInfo, Mode=OneWay, Converter={StaticResource BestInfoConverter}}" Grid.Column="1" Grid.Row="6"></TextBlock>
 
                 <Grid Grid.Row="7" Grid.Column="0" Margin="2">
